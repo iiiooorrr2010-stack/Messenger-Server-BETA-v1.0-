@@ -1,0 +1,31 @@
+package com.example.demo.UserManagemeng.Controller;
+
+import com.example.demo.UnitModel.UserModel.NameIndex;
+import com.example.demo.UnitModel.UserModel.User;
+import com.example.demo.UserManagemeng.UserRepository.UsersNameIndex;
+import com.example.demo.UserManagemeng.UserRepository.UsersRepository;
+import com.example.demo.Exception.UserNotFoundWithId;
+import com.example.demo.Exception.UserNameIndexNotFound;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+@Slf4j
+@RestController
+public class UserNameController {
+    @Autowired
+    private UsersNameIndex usersNumRepository;
+    @Autowired
+    private UsersRepository usersRepository;
+    @GetMapping("/get-name-user/{name}")
+  public User HttpGetAccount(@PathVariable String name) {
+        NameIndex lowUser = usersNumRepository.findById(name)
+                .orElseThrow(()
+                        -> new UserNameIndexNotFound(name));
+
+        return usersRepository.findById(lowUser.getId())
+                .orElseThrow(()
+                    -> new UserNotFoundWithId(lowUser.getId()));
+    }
+}

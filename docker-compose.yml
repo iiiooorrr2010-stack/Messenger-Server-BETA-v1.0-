@@ -1,19 +1,21 @@
+version: '3.8'
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
+  postgres:
+    image: postgres:15
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
+      POSTGRES_DB: messenger
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "2181:2181"
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
+  app:
+    build: .
     depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
+      - postgres
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/messenger
+    ports:
+      - "25565:25565"
