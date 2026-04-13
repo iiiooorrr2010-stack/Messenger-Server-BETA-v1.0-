@@ -18,12 +18,12 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) {
             if (request instanceof ServletServerHttpRequest) {
-                String id = ((ServletServerHttpRequest) request)
+                String token = ((ServletServerHttpRequest) request)
                                 .getServletRequest()
-                                .getParameter("id");
-                if (id !=null) {
-                    attributes.put("id", id);
-                    log.info("Подключен пользователь с id {}", id);
+                                .getParameter("Authentication");
+                if (token !=null) {
+                    attributes.put("token", token);
+                    log.info("Подключен пользователь с token {}", token);
                     return true;
                 }
             }
@@ -33,10 +33,10 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, @Nullable Exception exception) {
         if (request instanceof ServletServerHttpRequest) {
-            String id = ((ServletServerHttpRequest) request)
+            String token = ((ServletServerHttpRequest) request)
                             .getServletRequest()
-                            .getParameter("id");
-            log.info("Провалена сессия {}", id);
+                            .getParameter("token");
+            log.info("Провалена сессия {}", token);
         }
 
     }

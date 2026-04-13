@@ -1,21 +1,35 @@
 version: '3.8'
+
 services:
   postgres:
-    image: postgres:15
+    image: postgres:16-alpine
+    container_name: messenger-postgres
     environment:
       POSTGRES_DB: messenger
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  app:
+  messenger:
     build: .
-    depends_on:
-      - postgres
+    container_name: messenger-server
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/messenger
+      DB_URL: jdbc:postgresql://postgres:5432/messenger
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-secret}
     ports:
       - "25565:25565"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
